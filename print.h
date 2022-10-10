@@ -18,18 +18,17 @@ int print(char *texto, ...){
     // flotante
     // caracter
     // booleano | logico
-	int cant = 0;
+	unsigned cant = 0;
 	int pos;
 	int var_int;
 	char var_char;
 	double var_float;
 	bool var_bool;
 	bool onetime = 0;
+	char *var_ptrChar;
 
 	char var_string[1000];//sirve para hacer el intercambio de variable a char *
-
-	char *buffTexto = (char *) malloc(sizeof(texto) * 2);
-	buffTexto = texto;
+	char *buffTexto = (char *) malloc(sizeof(texto));
 
 	for (int i = 0; i < strlen(texto); i++){
 		if(texto[i] == '%'){
@@ -37,7 +36,9 @@ int print(char *texto, ...){
 		}
 	}
 
-	if(cant != 0){
+	buffTexto = texto;
+
+	if(cant){
 		va_list ap;
 
 		va_start(ap, cant);
@@ -79,6 +80,12 @@ int print(char *texto, ...){
 							snprintf(var_string, sizeof(var_string), "%s",convert(var_bool));
 
 							buffTexto = replaceString(buffTexto, pos - 1, pos + 1, var_string );
+						}else{
+							if(buffTexto[pos] == 's'){
+								var_ptrChar = va_arg(ap, char *);
+
+								buffTexto = replaceString(buffTexto, pos - 1, pos + 1, var_ptrChar);
+							}
 						}
 					}
 				}
@@ -86,19 +93,21 @@ int print(char *texto, ...){
 		}
 
 		va_end(ap);
-		puts(buffTexto);
+		print(buffTexto);
 		free(buffTexto);
 	}else{
-		puts(buffTexto);
+		for (int i = 0; i < strlen(buffTexto); i++)
+		{
+			putc(buffTexto[i], stdout);
+		}
 	}	
-
     return 0;
 }
 
 char *replaceString(char *texto, int pntA, int pntB, char *cambiar){
 	char *elTexto;
 
-	elTexto = (char *) malloc(sizeof(texto) + sizeof(cambiar));
+	elTexto = (char *) malloc(strlen(texto) + strlen(cambiar));
 
 	for(int i = 0; i < pntA; i++){
 		elTexto[i] = texto[i];
